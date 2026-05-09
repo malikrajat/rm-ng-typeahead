@@ -1,0 +1,534 @@
+<div class="demo-container">
+  <header class="demo-header">
+    <h1>{{ title() }}</h1>
+    <p class="demo-subtitle">Angular 20.2.1 Typeahead Component Library</p>
+  </header>
+
+  <main class="demo-content">
+    <!-- Static Options Example -->
+    <section class="demo-section">
+      <h2>🍎 Static Options Example</h2>
+      <p>Basic typeahead with predefined options and minimal configuration.</p>
+
+      <div class="demo-example">
+        <label for="fruit-typeahead">Select a fruit:</label>
+        <rm-typeahead
+          id="fruit-typeahead"
+          [options]="staticOptions"
+          [inputConfig]="basicConfig"
+          [defaultValue]="'banana'"
+          [defaultLabel]="'Banana (Default)'"
+          (optionSelected)="onFruitSelected($event)"
+          (searchChanged)="onSearchChanged($event)"
+          (opened)="onOpened()"
+          (closed)="onClosed()">
+        </rm-typeahead>
+
+        @if (selectedFruit()) {
+          <div class="demo-result">
+            <strong>Selected:</strong> {{ selectedFruit() }}
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Async Search Example -->
+    <section class="demo-section">
+      <h2>🌍 Async Search Example</h2>
+      <p>Dynamic search with simulated API call and loading states.</p>
+
+      <div class="demo-example">
+        <label for="country-typeahead">Search countries:</label>
+        <rm-typeahead
+          id="country-typeahead"
+          [searchFn]="searchCountries"
+          [inputConfig]="advancedConfig"
+          (optionSelected)="onCountrySelected($event)"
+          (searchChanged)="onSearchChanged($event)">
+        </rm-typeahead>
+
+        @if (selectedCountry()) {
+          <div class="demo-result">
+            <strong>Selected:</strong> {{ selectedCountry() }}
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Search Highlighting Demo -->
+    <section class="demo-section">
+      <h2>🔍 Search Highlighting Demo</h2>
+      <p>Type to see search term highlighting in action. Try typing "ap", "app", "berry", or "grape".</p>
+
+      <div class="demo-example">
+        <label for="highlight-typeahead">Search with highlighting:</label>
+        <rm-typeahead
+          id="highlight-typeahead"
+          [options]="staticOptions"
+          [inputConfig]="highlightConfig"
+          (optionSelected)="onHighlightSelected($event)"
+          (searchChanged)="onSearchChanged($event)">
+        </rm-typeahead>
+
+        @if (selectedHighlight()) {
+          <div class="demo-result">
+            <strong>Selected:</strong> {{ selectedHighlight() }}
+          </div>
+        }
+
+        @if (lastSearchTerm()) {
+          <div class="demo-search-info">
+            <strong>Current search term:</strong> "{{ lastSearchTerm() }}"
+            <br>
+            <small>You should see the search term highlighted in yellow/orange in the dropdown results.</small>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Form Integration Example -->
+    <section class="demo-section">
+      <h2>📝 Form Integration Example</h2>
+      <p>Reactive forms integration with validation and form controls.</p>
+
+      <form [formGroup]="demoForm" class="demo-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-fruit">Favorite Fruit:</label>
+            <rm-typeahead
+              id="form-fruit"
+              formControlName="selectedFruit"
+              [options]="staticOptions"
+              [inputConfig]="{ placeholder: 'Choose your favorite fruit...' }">
+            </rm-typeahead>
+          </div>
+
+          <div class="form-group">
+            <label for="form-country">Country:</label>
+            <rm-typeahead
+              id="form-country"
+              formControlName="selectedCountry"
+              [searchFn]="searchCountries"
+              [inputConfig]="{ placeholder: 'Search for a country...' }">
+            </rm-typeahead>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" (click)="populateForm()" class="btn btn-secondary">
+            Populate Form
+          </button>
+          <button type="button" (click)="clearSelections()" class="btn btn-outline">
+            Clear All
+          </button>
+        </div>
+
+        @if (demoForm.value.selectedFruit || demoForm.value.selectedCountry) {
+          <div class="form-values">
+            <h4>Form Values:</h4>
+            <pre>{{ demoForm.value | json }}</pre>
+          </div>
+        }
+      </form>
+    </section>
+
+    <!-- Multi-Select with Chips Example ✨ NEW -->
+    <section class="demo-section">
+      <h2>🏷️ Multi-Select with Chips/Tags</h2>
+      <p>Select multiple items with beautiful chip/tag display and advanced features.</p>
+
+      <div class="demo-example">
+        <label for="categories-typeahead">Select categories:</label>
+        <rm-typeahead
+          id="categories-typeahead"
+          [options]="categories"
+          [inputConfig]="multiSelectConfig"
+          (selectionChanged)="onCategoriesChanged($event)"
+          (chipRemoved)="onCategoryChipRemoved($event)">
+        </rm-typeahead>
+
+        @if (selectedCategories().length > 0) {
+          <div class="demo-result">
+            <strong>Selected ({{ selectedCategories().length }}):</strong>
+            {{ selectedCategoryLabels() }}
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Advanced Multi-Select Example ✨ NEW -->
+    <section class="demo-section">
+      <h2>🔍 Advanced Multi-Select with Search</h2>
+      <p>Multi-select with search functionality, compact mode, and advanced configuration.</p>
+
+      <div class="demo-example">
+        <label for="tags-typeahead">Search and select tags:</label>
+        <rm-typeahead
+          id="tags-typeahead"
+          [options]="tags"
+          [inputConfig]="advancedMultiConfig"
+          (selectionChanged)="onTagsChanged($event)"
+          (chipRemoved)="onTagChipRemoved($event)">
+        </rm-typeahead>
+
+        @if (selectedTags().length > 0) {
+          <div class="demo-result">
+            <strong>Selected Tags ({{ selectedTags().length }}/10):</strong>
+            <div class="tag-list">
+              @for (tag of selectedTagLabels(); track tag) {
+                <span class="tag">{{ tag }}</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Enhanced Search Features Example -->
+    <section class="demo-section">
+      <h2>⚡ Enhanced Search Features</h2>
+      <p>Advanced search capabilities with request cancellation, throttling, and retries.</p>
+
+      <div class="demo-examples-grid">
+        <div class="demo-example">
+          <h4>🔥 Enhanced Search with Cancellation</h4>
+          <label for="enhanced-typeahead">Search with auto-cancellation:</label>
+          <rm-typeahead
+            id="enhanced-typeahead"
+            [searchFn]="searchCountriesWithDelay"
+            [inputConfig]="enhancedConfig"
+            (optionSelected)="onEnhancedSelected($event)"
+            (searchChanged)="onSearchChanged($event)">
+          </rm-typeahead>
+
+          @if (selectedEnhanced()) {
+            <div class="demo-result">
+              <strong>Selected:</strong> {{ selectedEnhanced() }}
+            </div>
+          }
+
+          <div class="feature-info">
+            <h5>Active Features:</h5>
+            <ul class="feature-list">
+              <li>✅ Previous request cancellation</li>
+              <li>✅ Search on focus</li>
+              <li>✅ 5-second timeout with retry</li>
+              <li>✅ Error handling with user feedback</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="demo-example">
+          <h4>🎯 Throttled Search</h4>
+          <label for="throttle-typeahead">Throttled every 200ms:</label>
+          <rm-typeahead
+            id="throttle-typeahead"
+            [searchFn]="searchCountries"
+            [inputConfig]="throttleConfig"
+            (optionSelected)="onThrottleSelected($event)">
+          </rm-typeahead>
+
+          @if (selectedThrottle()) {
+            <div class="demo-result">
+              <strong>Selected:</strong> {{ selectedThrottle() }}
+            </div>
+          }
+
+          <div class="feature-info">
+            <h5>Throttle vs Debounce:</h5>
+            <ul class="feature-list">
+              <li>⏱️ Throttle: Executes at most once per interval</li>
+              <li>⏰ Debounce: Executes after user stops typing</li>
+              <li>🚀 Better for real-time search</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="search-controls">
+        <h4>Search Control Methods:</h4>
+        <div class="control-buttons">
+          <button type="button" (click)="performCustomSearch()" class="btn btn-primary">
+            Perform Custom Search
+          </button>
+          <button type="button" (click)="cancelAllSearches()" class="btn btn-danger">
+            Cancel All Searches
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- High-Performance Large Dataset Example -->
+    <section class="demo-section">
+      <h2>🚀 High-Performance Large Dataset Example</h2>
+      <p>Virtual scrolling with 100,000+ items - optimized for memory and rendering performance.</p>
+
+      <div class="demo-example">
+        <label for="large-dataset-typeahead">Search large dataset (100k+ items):</label>
+        <rm-typeahead
+          id="large-dataset-typeahead"
+          [searchFn]="searchLargeDataset"
+          [inputConfig]="performanceConfig"
+          (optionSelected)="onLargeDatasetSelected($event)"
+          (searchChanged)="onSearchChanged($event)">
+        </rm-typeahead>
+
+        @if (selectedLargeItem()) {
+          <div class="demo-result">
+            <strong>Selected:</strong> {{ selectedLargeItem() }}
+            <br>
+            <small class="text-muted">From dataset of 100,000+ items with virtual scrolling</small>
+          </div>
+        }
+
+        <div class="performance-info">
+          <h4>Performance Features Active:</h4>
+          <ul class="feature-list">
+            <li>✅ Virtual scrolling (renders only visible items)</li>
+            <li>✅ Result caching (faster repeat searches)</li>
+            <li>✅ Debounced input (reduces API calls)</li>
+            <li>✅ Batch updates (smooth UI rendering)</li>
+            <li>✅ Memory optimization (garbage collection)</li>
+            <li>✅ Lazy loading (on-demand item loading)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Custom Color Configuration Example ✨ NEW -->
+    <section class="demo-section">
+      <h2>🎨 Custom Color Configuration</h2>
+      <p>Complete color customization with green theme for chips, orange highlights, and purple focus.</p>
+
+      <div class="demo-example">
+        <label for="custom-color-typeahead">Custom color theme:</label>
+        <rm-typeahead
+          id="custom-color-typeahead"
+          [options]="categories"
+          [inputConfig]="colorCustomConfig"
+          (selectionChanged)="onCustomColorChanged($event)"
+          (chipRemoved)="onCustomColorChipRemoved($event)">
+        </rm-typeahead>
+
+        @if (selectedCustomColorItems().length > 0) {
+          <div class="demo-result">
+            <strong>Selected (Custom Colors):</strong>
+            {{ selectedCustomColorLabels() }}
+          </div>
+        }
+
+        <div class="color-config-info">
+          <h5>Color Configuration:</h5>
+          <div class="color-swatches">
+            <div class="color-swatch">
+              <span class="color-box" style="background-color: #e8f5e8; border: 1px solid #4caf50;"></span>
+              <span>Chip Background</span>
+            </div>
+            <div class="color-swatch">
+              <span class="color-box" style="background-color: #ff9800;"></span>
+              <span>Highlight</span>
+            </div>
+            <div class="color-swatch">
+              <span class="color-box" style="background-color: #e91e63;"></span>
+              <span>Search Highlight</span>
+            </div>
+            <div class="color-swatch">
+              <span class="color-box" style="background-color: #9c27b0;"></span>
+              <span>Focus Border</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dark Theme Configuration Example ✨ NEW -->
+    <section class="demo-section">
+      <h2>🌙 Dark Theme Configuration</h2>
+      <p>Professional dark theme with configurable colors for dark mode applications.</p>
+
+      <div class="demo-example">
+        <label for="dark-theme-typeahead">Dark theme selection:</label>
+        <rm-typeahead
+          id="dark-theme-typeahead"
+          [options]="tags"
+          [inputConfig]="darkThemeConfig"
+          (selectionChanged)="onDarkThemeChanged($event)"
+          (chipRemoved)="onDarkThemeChipRemoved($event)">
+        </rm-typeahead>
+
+        @if (selectedDarkThemeItems().length > 0) {
+          <div class="demo-result">
+            <strong>Selected (Dark Theme):</strong>
+            {{ selectedDarkThemeLabels() }}
+          </div>
+        }
+
+        <div class="color-config-info">
+          <h5>Dark Theme Colors:</h5>
+          <div class="color-swatches">
+            <div class="color-swatch">
+              <span class="color-box" style="background-color: #424242; border: 1px solid #616161;"></span>
+              <span>Dark Chips</span>
+            </div>
+            <div class="color-swatch">
+              <span class="color-box" style="background-color: #1976d2;"></span>
+              <span>Blue Highlights</span>
+            </div>
+            <div class="color-swatch">
+              <span class="color-box" style="background-color: #ffcc02;"></span>
+              <span>Search Highlight</span>
+            </div>
+            <div class="color-swatch">
+              <span class="color-box" style="background-color: #2196f3;"></span>
+              <span>Focus Accent</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Multi-Select Form Integration Example ✨ NEW -->
+    <section class="demo-section">
+      <h2>📋 Multi-Select Form Integration</h2>
+      <p>Comprehensive reactive forms integration with multi-select controls and validation.</p>
+
+      <form [formGroup]="multiSelectForm" class="demo-form multi-select-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="form-categories">Categories:</label>
+            <rm-typeahead
+              id="form-categories"
+              formControlName="categories"
+              [options]="categories"
+              [inputConfig]="multiSelectConfig">
+            </rm-typeahead>
+          </div>
+
+          <div class="form-group">
+            <label for="form-tags">Tags:</label>
+            <rm-typeahead
+              id="form-tags"
+              formControlName="tags"
+              [options]="tags"
+              [inputConfig]="advancedMultiConfig">
+            </rm-typeahead>
+          </div>
+
+          <div class="form-group">
+            <label for="form-custom-colors">Custom Color Items:</label>
+            <rm-typeahead
+              id="form-custom-colors"
+              formControlName="customColorItems"
+              [options]="categories"
+              [inputConfig]="colorCustomConfig">
+            </rm-typeahead>
+          </div>
+
+          <div class="form-group">
+            <label for="form-dark-theme">Dark Theme Items:</label>
+            <rm-typeahead
+              id="form-dark-theme"
+              formControlName="darkThemeItems"
+              [options]="tags"
+              [inputConfig]="darkThemeConfig">
+            </rm-typeahead>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" (click)="populateForm()" class="btn btn-secondary">
+            Populate Forms
+          </button>
+          <button type="button" (click)="clearSelections()" class="btn btn-outline">
+            Clear All Selections
+          </button>
+        </div>
+
+        @if (multiSelectForm.value.categories?.length || multiSelectForm.value.tags?.length ||
+             multiSelectForm.value.customColorItems?.length || multiSelectForm.value.darkThemeItems?.length) {
+          <div class="form-values">
+            <h4>Multi-Select Form Values:</h4>
+            <pre>{{ multiSelectForm.value | json }}</pre>
+          </div>
+        }
+      </form>
+    </section>
+
+    <!-- Features Showcase -->
+    <section class="demo-section">
+      <h2>✨ Features Showcase</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <h3>🚀 Performance</h3>
+          <ul>
+            <li>Virtual scrolling (100k+ items)</li>
+            <li>Result caching & memoization</li>
+            <li>Debounced search (configurable)</li>
+            <li>OnPush change detection</li>
+            <li>Memory leak prevention</li>
+            <li>Batch updates & rendering</li>
+            <li>Lazy loading & recycling</li>
+            <li>Automatic garbage collection</li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <h3>♿ Accessibility</h3>
+          <ul>
+            <li>WCAG 2.1 AA compliant</li>
+            <li>Full keyboard navigation</li>
+            <li>Screen reader support</li>
+            <li>High contrast mode</li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <h3>🎨 Styling</h3>
+          <ul>
+            <li>CSS custom properties</li>
+            <li>Dark/Light mode support</li>
+            <li>RTL language support</li>
+            <li>Responsive design</li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <h3>🔧 Developer Experience</h3>
+          <ul>
+            <li>TypeScript first</li>
+            <li>Reactive forms integration</li>
+            <li>Observable-based API</li>
+            <li>Plugin and play design</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Debug Info -->
+    <section class="demo-section debug-section">
+      <h2>🐛 Debug Information</h2>
+      <div class="debug-info">
+        <div class="debug-item">
+          <strong>Last Search Term:</strong>
+          <span>{{ lastSearchTerm() || 'None' }}</span>
+        </div>
+        <div class="debug-item">
+          <strong>Selected Fruit:</strong>
+          <span>{{ selectedFruit() || 'None' }}</span>
+        </div>
+        <div class="debug-item">
+          <strong>Selected Country:</strong>
+          <span>{{ selectedCountry() || 'None' }}</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="demo-footer">
+    <p>
+      Built with Angular {{ '20.2.1' }} •
+      <a href="https://github.com" target="_blank" rel="noopener">View on GitHub</a> •
+      <a href="#" target="_blank" rel="noopener">Documentation</a>
+    </p>
+  </footer>
+</div>
