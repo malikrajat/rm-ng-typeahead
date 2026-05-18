@@ -1,0 +1,51 @@
+# Commit Message Template
+#
+# Format: <type>(<scope>): <description>
+#
+# Types:
+#   feat     - New features (minor version bump)
+#   fix      - Bug fixes (patch version bump)
+#   docs     - Documentation changes
+#   style    - Code style/formatting changes
+#   refactor - Code refactoring
+#   perf     - Performance improvements (patch version bump)
+#   test     - Test additions/modifications
+#   chore    - Build process or tool changes
+#   ci       - CI configuration changes
+#   build    - Build system changes
+#   revert   - Revert previous commits
+#
+# Scopes:
+#   typeahead      - Main typeahead component
+#   chips          - Chip/tag functionality
+#   search         - Search functionality
+#   accessibility  - Accessibility features
+#   performance    - Performance optimizations
+#   styling        - CSS and theming
+#   forms          - Form integration
+#   config         - Configuration system
+#   docs           - Documentation
+#   demo           - Demo application
+#   build          - Build system
+#   deps           - Dependencies
+#   release        - Release management
+#
+# Breaking Changes:
+#   Add ! after type/scope: feat(typeahead)!: remove deprecated API
+#   Or add BREAKING CHANGE: in footer
+#
+# Examples:
+#   feat(typeahead): add virtual scrolling support
+#   fix(search): resolve race condition in async requests
+#   docs(readme): update installation instructions
+#   perf(chips): optimize chip rendering for large datasets
+#   feat(config)!: restructure configuration object
+#
+# Rules:
+#   - Subject line: max 72 characters
+#   - Body lines: max 100 characters
+#   - Use imperative mood ("add" not "added")
+#   - No period at end of subject
+#   - Separate subject from body with blank line
+#
+# More info: https://www.conventionalcommits.org/
