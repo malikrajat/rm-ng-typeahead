@@ -1,0 +1,34 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "📝 Validating commit message..."
+
+# Run commitlint to validate commit message format
+npx --no-install commitlint --edit "$1"
+
+if [ $? -eq 0 ]; then
+  echo "✅ Commit message format is valid!"
+
+  # Run additional custom validation
+  node scripts/validate-commits.js file "$1"
+
+  if [ $? -eq 0 ]; then
+    echo "🎯 Commit message passed all validation checks!"
+  else
+    echo "❌ Commit message failed custom validation"
+    exit 1
+  fi
+else
+  echo "❌ Commit message format is invalid"
+  echo ""
+  echo "📋 Expected format:"
+  echo "   <type>(<scope>): <description>"
+  echo ""
+  echo "📝 Examples:"
+  echo "   feat(typeahead): add virtual scrolling support"
+  echo "   fix(search): resolve race condition in async requests"
+  echo "   docs(readme): update installation instructions"
+  echo ""
+  echo "🔧 Use 'npm run commit' for interactive commit helper"
+  exit 1
+fi

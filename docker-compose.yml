@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # Development Server
+  dev:
+    build:
+      context: .
+      target: development
+    container_name: rm-ng-typeahead-dev
+    ports:
+      - '4200:4200'
+      - '9876:9876' # Karma test server
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.angular
+    environment:
+      - NODE_ENV=development
+      - NG_CLI_ANALYTICS=false
+    command: npm start
+    networks:
+      - angular-dev
+
+  # Library Build Watcher
+  lib-watch:
+    build:
+      context: .
+      target: development
+    container_name: rm-ng-typeahead-lib-watch
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.angular
+    environment:
+      - NODE_ENV=development
+    command: npm run dev:lib
+    networks:
+      - angular-dev
+
+  # Test Runner
+  test:
+    build:
+      context: .
+      target: development
+    container_name: rm-ng-typeahead-test
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/coverage
+    environment:
+      - NODE_ENV=test
+      - CHROME_BIN=/usr/bin/chromium-browser
+    command: npm run test:watch
+    networks:
+      - angular-dev
+
+  # Production Demo
+  demo:
+    build:
+      context: .
+      target: production
+    container_name: rm-ng-typeahead-demo
+    ports:
+      - '8080:80'
+    restart: unless-stopped
+    networks:
+      - angular-demo
+
+  # Documentation Server
+  docs:
+    build:
+      context: .
+      target: development
+    container_name: rm-ng-typeahead-docs
+    ports:
+      - '8081:8081'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npx compodoc -p tsconfig.json -s -w -p 8081
+    networks:
+      - angular-dev
+
+  # Bundle Analyzer
+  analyzer:
+    build:
+      context: .
+      target: development
+    container_name: rm-ng-typeahead-analyzer
+    ports:
+      - '8888:8888'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run analyze
+    networks:
+      - angular-dev
+
+networks:
+  angular-dev:
+    driver: bridge
+  angular-demo:
+    driver: bridge
+
+volumes:
+  node_modules:
+  angular_cache:

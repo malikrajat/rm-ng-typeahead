@@ -1,0 +1,42 @@
+{
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=827846
+  "recommendations": [
+    // Angular Development
+    "angular.ng-template",
+    "ms-vscode.vscode-typescript-next",
+    "bradlc.vscode-tailwindcss",
+
+    // Code Quality
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "ms-vscode.vscode-json",
+
+    // Testing
+    "hbenl.vscode-test-explorer",
+    "kavod-io.vscode-jest-test-adapter",
+
+    // Git & Version Control
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+
+    // Development Tools
+    "ms-vscode.live-server",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+
+    // Documentation
+    "shd101wyy.markdown-preview-enhanced",
+    "yzhang.markdown-all-in-one",
+
+    // Productivity
+    "ms-vscode.vscode-todo-highlight",
+    "gruntfuggly.todo-tree",
+    "alefragnani.bookmarks",
+
+    // Docker Support
+    "ms-azuretools.vscode-docker",
+
+    // Performance
+    "ms-vscode.vscode-performance-monitor"
+  ]
+}
