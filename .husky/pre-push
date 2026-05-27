@@ -1,0 +1,88 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🚀 Running pre-push checks..."
+
+# Get the remote and branch being pushed to
+remote="$1"
+url="$2"
+
+# Check if pushing to main/master branch
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+if [ "$current_branch" = "main" ] || [ "$current_branch" = "master" ]; then
+  echo "⚠️  Pushing to protected branch: $current_branch"
+
+  # Run full test suite
+  echo "\n🧪 Running full test suite..."
+  npm run test -- --watch=false --browsers=ChromeHeadless
+  if [ $? -ne 0 ]; then
+    echo "❌ Test suite failed. Cannot push to $current_branch."
+    exit 1
+  fi
+
+  # Run linting
+  echo "\n🔍 Running linter..."
+  npm run lint
+  if [ $? -ne 0 ]; then
+    echo "❌ Linting failed. Cannot push to $current_branch."
+    exit 1
+  fi
+
+  # Build library
+  echo "\n🏗️  Building library..."
+  npm run build:lib
+  if [ $? -ne 0 ]; then
+    echo "❌ Library build failed. Cannot push to $current_branch."
+    exit 1
+  fi
+
+  # Build demo application
+  echo "\n🎯 Building demo application..."
+  npm run build:demo
+  if [ $? -ne 0 ]; then
+    echo "❌ Demo build failed. Cannot push to $current_branch."
+    exit 1
+  fi
+
+  # Validate recent commit messages
+  echo "\n📝 Validating recent commit messages..."
+  node scripts/validate-commits.js history 5
+  if [ $? -ne 0 ]; then
+    echo "❌ Some recent commits have invalid messages."
+    echo "💡 Use 'npm run commit:validate-history' to check all commits"
+    exit 1
+  fi
+
+  # Check for version conflicts
+  if git diff --name-only HEAD~1 HEAD | grep -q "package\.json"; then
+    echo "\n📦 Version change detected, validating..."
+
+    # Check if changelog was updated
+    if ! git diff --name-only HEAD~1 HEAD | grep -q "CHANGELOG\.md"; then
+      echo "⚠️  package.json changed but CHANGELOG.md wasn't updated"
+      echo "💡 Consider running 'npm run changelog:update'"
+    fi
+  fi
+
+  echo "\n✅ All pre-push checks passed for $current_branch!"
+else
+  echo "📝 Pushing to feature branch: $current_branch"
+
+  # Lighter checks for feature branches
+  echo "\n🔍 Running basic validation..."
+  npm run lint
+  if [ $? -ne 0 ]; then
+    echo "❌ Linting failed."
+    exit 1
+  fi
+
+  # Quick build check
+  echo "\n🏗️  Quick build check..."
+  npm run build:lib
+  if [ $? -ne 0 ]; then
+    echo "❌ Library build failed."
+    exit 1
+  fi
+
+  echo "\n✅ Pre-push checks passed for feature branch!"
+fi

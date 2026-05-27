@@ -1,0 +1,59 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Check if there are staged files
+STAGED_FILES=$(git diff --cached --name-only)
+if [ -z "$STAGED_FILES" ]; then
+  echo "❌ No staged files found. Use 'git add <files>' first."
+  exit 1
+fi
+
+echo "📁 Staged files:"
+echo "$STAGED_FILES" | sed 's/^/   /'
+
+# Run lint-staged for formatting and linting
+echo "\n🎨 Running Prettier and ESLint..."
+npx lint-staged
+
+# Run unit tests for TypeScript files if any are staged
+TS_FILES=$(echo "$STAGED_FILES" | grep -E '\.(ts|js)$' | grep -v '\.spec\.ts$' | grep -v '\.d\.ts$')
+if [ ! -z "$TS_FILES" ]; then
+  echo "\n🧪 Running unit tests for changed files..."
+  npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage=false
+  if [ $? -ne 0 ]; then
+    echo "❌ Unit tests failed. Fix tests before committing."
+    exit 1
+  fi
+fi
+
+# Check for debugging statements
+echo "\n🔍 Checking for debugging statements..."
+if echo "$STAGED_FILES" | xargs grep -l "console\.log\|debugger\|TODO\|FIXME" 2>/dev/null; then
+  echo "⚠️  Warning: Found debugging statements or TODO/FIXME comments."
+  echo "   Consider removing them before committing."
+fi
+
+# Validate package.json if changed
+if echo "$STAGED_FILES" | grep -q "package\.json"; then
+  echo "\n📦 Validating package.json..."
+  node -e "JSON.parse(require('fs').readFileSync('package.json', 'utf8'))"
+  if [ $? -ne 0 ]; then
+    echo "❌ package.json is invalid JSON"
+    exit 1
+  fi
+fi
+
+# Check library build if library files changed
+LIB_FILES=$(echo "$STAGED_FILES" | grep "projects/rm-ng-typeahead")
+if [ ! -z "$LIB_FILES" ]; then
+  echo "\n🏗️  Building library to ensure it compiles..."
+  npm run build:lib
+  if [ $? -ne 0 ]; then
+    echo "❌ Library build failed. Fix build errors before committing."
+    exit 1
+  fi
+fi
+
+echo "\n✅ All pre-commit checks passed!"

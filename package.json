@@ -1,0 +1,160 @@
+{
+  "name": "rm-ng-typeahead-main",
+  "version": "1.0.0",
+  "description": "High-performance Angular 20+ typeahead/autocomplete component with multi-select, chips, and comprehensive customization",
+  "keywords": [
+    "angular",
+    "typeahead",
+    "autocomplete",
+    "multi-select",
+    "chips",
+    "tags",
+    "accessibility",
+    "performance",
+    "virtual-scrolling"
+  ],
+  "author": "RM Angular Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/rm-ng-typeahead.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/rm-ng-typeahead/issues"
+  },
+  "homepage": "https://github.com/your-username/rm-ng-typeahead#readme",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "dev": "ng serve --configuration development",
+    "dev:lib": "ng build rm-ng-typeahead --watch",
+    "build": "ng build",
+    "build:lib": "ng build rm-ng-typeahead",
+    "build:lib:prod": "ng build rm-ng-typeahead --configuration production",
+    "build:prod": "ng build --configuration production",
+    "build:demo": "ng build --configuration production --base-href ./",
+    "build:all": "npm run build:lib:prod && npm run build:demo",
+    "watch": "ng build --watch --configuration development",
+    "serve:dist": "npx http-server dist/rm-ng-typeahead-main -p 8080 -c-1",
+    "test": "ng test",
+    "test:lib": "ng test rm-ng-typeahead",
+    "test:watch": "ng test --watch",
+    "test:coverage": "ng test --code-coverage",
+    "test:ci": "ng test --watch=false --browsers=ChromeHeadless --code-coverage",
+    "lint": "ng lint",
+    "lint:fix": "ng lint --fix",
+    "lint:ci": "ng lint --format=checkstyle",
+    "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\" \"projects/**/*.{ts,html,scss,css,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,scss,css,json}\" \"projects/**/*.{ts,html,scss,css,json}\"",
+    "analyze": "ng build --stats-json && npx webpack-bundle-analyzer dist/rm-ng-typeahead-main/stats.json",
+    "analyze:lib": "ng build rm-ng-typeahead --stats-json && npx webpack-bundle-analyzer dist/rm-ng-typeahead/stats.json",
+    "size:check": "npm run build:lib:prod && bundlesize",
+    "perf:audit": "npm run build:demo && npx lighthouse http://localhost:8080 --view",
+    "changelog:generate": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
+    "changelog:update": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "version:patch": "npm run changelog:update && npm version patch --no-git-tag-version",
+    "version:minor": "npm run changelog:update && npm version minor --no-git-tag-version",
+    "version:major": "npm run changelog:update && npm version major --no-git-tag-version",
+    "release:prepare": "npm run lint && npm run test:ci && npm run build:all",
+    "release:publish": "npm run release:prepare && npm publish dist/rm-ng-typeahead",
+    "release:dry-run": "npm run release:prepare && npm publish dist/rm-ng-typeahead --dry-run",
+    "release:notes": "node scripts/generate-release-notes.js",
+    "release:notes-preview": "node scripts/generate-release-notes.js --dry-run",
+    "commit": "git-cz",
+    "commit:interactive": "node scripts/commit-helper.js",
+    "commit:template": "git config commit.template .gitmessage",
+    "commit:validate": "node scripts/validate-commits.js",
+    "commit:validate-history": "node scripts/validate-commits.js history",
+    "commit:help": "echo 'Commit commands:' && echo '  npm run commit               - Interactive commitizen' && echo '  npm run commit:interactive   - Custom interactive helper' && echo '  npm run commit:template      - Set git template' && echo '  npm run commit:validate      - Validate recent commits' && echo '  npm run commit:validate-history - Validate commit history' && echo '  git commit                   - Manual commit with template'",
+    "hooks:install": "husky install",
+    "hooks:test": "echo 'Testing git hooks...' && git add README.md && git reset HEAD README.md",
+    "prepare": "husky install",
+    "pre-commit": "lint-staged",
+    "clean": "rimraf dist node_modules/.cache .angular",
+    "clean:install": "npm run clean && npm install",
+    "deps:check": "npm outdated",
+    "deps:update": "npm update",
+    "security:audit": "npm audit",
+    "security:fix": "npm audit fix"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,html,scss,css,json}": [
+      "prettier --write"
+    ],
+    "*.{ts,js}": [
+      "eslint --fix"
+    ],
+    "*.ts": [
+      "ng lint --fix"
+    ],
+    "package.json": [
+      "node -e \"JSON.parse(require('fs').readFileSync('package.json', 'utf8'))\""
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/cdk": "^20.2.1",
+    "@angular/common": "^20.2.0",
+    "@angular/compiler": "^20.2.0",
+    "@angular/core": "^20.2.0",
+    "@angular/forms": "^20.2.0",
+    "@angular/platform-browser": "^20.2.0",
+    "@angular/router": "^20.2.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular-eslint/builder": "20.2.0",
+    "@angular-eslint/eslint-plugin": "20.2.0",
+    "@angular-eslint/eslint-plugin-template": "20.2.0",
+    "@angular-eslint/schematics": "20.2.0",
+    "@angular-eslint/template-parser": "20.2.0",
+    "@angular/build": "^20.2.1",
+    "@angular/cli": "^20.2.1",
+    "@angular/compiler-cli": "^20.2.0",
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "@types/jasmine": "~5.1.0",
+    "@typescript-eslint/eslint-plugin": "7.11.0",
+    "@typescript-eslint/parser": "7.11.0",
+    "angular-eslint": "^20.2.0",
+    "commitizen": "^4.3.0",
+    "conventional-changelog-cli": "^4.1.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "8.57.1",
+    "husky": "^9.0.0",
+    "jasmine-core": "~5.9.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "lint-staged": "^15.0.0",
+    "ng-packagr": "^20.2.0",
+    "prettier": "^3.0.0",
+    "standard-version": "^9.5.0",
+    "typescript": "~5.9.2",
+    "webpack-bundle-analyzer": "^4.9.0"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "@codewithrajat/rm-ng-typeahead",
+  "version": "1.0.0",
+  "description": "High-performance Angular 20+ typeahead component with multi-select, accessibility, and comprehensive customization",
+  "keywords": [
+    "angular",
+    "typeahead",
+    "autocomplete",
+    "multi-select",
+    "chips",
+    "accessibility",
+    "performance",
+    "standalone"
+  ],
+  "author": "RM Angular Team",
+  "license": "MIT",
+  "homepage": "https://github.com/your-username/rm-ng-typeahead#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/rm-ng-typeahead.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/rm-ng-typeahead/issues"
+  },
+  "peerDependencies": {
+    "@angular/common": "^20.2.0",
+    "@angular/core": "^20.2.0",
+    "@angular/forms": "^20.2.0",
+    "@angular/cdk": "^20.2.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
