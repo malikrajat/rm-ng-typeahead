@@ -1,0 +1,76 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.rulers": [100],
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.trimAutoWhitespace": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+
+  // TypeScript
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.suggest.autoImports": true,
+  "typescript.suggest.paths": true,
+  "typescript.inlayHints.parameterNames.enabled": "literals",
+  "typescript.inlayHints.variableTypes.enabled": true,
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+
+  // Angular
+  "angular.experimental-ivy": true,
+  "angular.log": "verbose",
+
+  // Files
+  "files.associations": {
+    "*.html": "html",
+    "*.component.html": "angular"
+  },
+
+  // Search
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.angular": true,
+    "**/coverage": true,
+    "**/.nyc_output": true
+  },
+
+  // Emmet
+  "emmet.includeLanguages": {
+    "angular": "html"
+  },
+
+  // Git
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+
+  // Terminal
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+
+  // Problems
+  "problems.decorations.enabled": true,
+
+  // Testing
+  "mochaExplorer.files": "src/**/*.spec.ts",
+
+  // Performance
+  "extensions.experimental.affinity": {
+    "ms-vscode.vscode-typescript-next": 1
+  },
+    "unusedCssDetector.autoAnalyze": true,
+  "unusedCssDetector.excludePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "*build/**"
+  ],
+  "unusedCssDetector.showStatusBar": true,
+  "unusedCssDetector.showNotifications": true,
+  "unusedCssDetector.debounceDelay": 500
+}
