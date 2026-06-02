@@ -1,0 +1,646 @@
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { By } from '@angular/platform-browser';
+import { DebugElement } from '@angular/core';
+import { of, throwError, delay } from 'rxjs';
+
+import { TypeaheadComponent, TypeaheadOption } from './typeahead';
+
+describe('TypeaheadComponent', () => {
+  let component: TypeaheadComponent;
+  let fixture: ComponentFixture<TypeaheadComponent>;
+  let inputElement: HTMLInputElement;
+  let debugElement: DebugElement;
+
+  // Mock data for testing
+  const mockOptions: TypeaheadOption[] = [
+    { value: 'apple', label: 'Apple' },
+    { value: 'banana', label: 'Banana' },
+    { value: 'cherry', label: 'Cherry' },
+    { value: 'date', label: 'Date' },
+    { value: 'elderberry', label: 'Elderberry' }
+  ];
+
+  const mockCountries: TypeaheadOption[] = [
+    { value: 'us', label: 'United States' },
+    { value: 'uk', label: 'United Kingdom' },
+    { value: 'fr', label: 'France' },
+    { value: 'de', label: 'Germany' },
+    { value: 'jp', label: 'Japan' }
+  ];
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
+        TypeaheadComponent,
+        ReactiveFormsModule
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(TypeaheadComponent);
+    component = fixture.componentInstance;
+    debugElement = fixture.debugElement;
+    
+    // Get the input element
+    inputElement = debugElement.query(By.css('.rm-typeahead__input')).nativeElement;
+    
+    fixture.detectChanges();
+  });
+
+  describe('Component Initialization', () => {
+    it('should create the component', () => {
+      expect(component).toBeTruthy();
+    });
+
+    it('should have default configuration values', () => {
+      const config = component.config();
+      expect(config.debounceTime).toBe(300);
+      expect(config.minLength).toBe(1);
+      expect(config.maxResults).toBe(10);
+      expect(config.placeholder).toBe('Type to search...');
+      expect(config.noResultsText).toBe('No results found');
+      expect(config.clearable).toBe(true);
+      expect(config.highlightFirst).toBe(true);
+    });
+
+    it('should initialize with empty values', () => {
+      expect(component.selectedValue()).toBeNull();
+      expect(component.isOpen()).toBeFalse();
+      expect(component.loading()).toBeFalse();
+      expect(component.filteredOptions()).toEqual([]);
+    });
+
+    it('should render input element with correct attributes', () => {
+      expect(inputElement).toBeTruthy();
+      expect(inputElement.getAttribute('role')).toBe('combobox');
+      expect(inputElement.getAttribute('aria-autocomplete')).toBe('list');
+      expect(inputElement.getAttribute('aria-expanded')).toBe('false');
+    });
+  });
+
+  describe('Static Options', () => {
+    beforeEach(() => {
+      component.options = mockOptions;
+      fixture.detectChanges();
+    });
+
+    it('should filter options based on search input', fakeAsync(() => {
+      component.searchControl.setValue('ap');
+      tick(300); // Wait for debounce
+      fixture.detectChanges();
+
+      expect(component.filteredOptions()).toEqual([
+        { value: 'apple', label: 'Apple' }
+      ]);
+    }));
+
+    it('should show all matching options for partial matches', fakeAsync(() => {
+      component.searchControl.setValue('e');
+      tick(300);
+      fixture.detectChanges();
+
+      const filtered = component.filteredOptions();
+      expect(filtered.length).toBe(3); // Apple, Cherry, Elderberry
+      expect(filtered.some(option => option.label === 'Apple')).toBeTruthy();
+      expect(filtered.some(option => option.label === 'Cherry')).toBeTruthy();
+      expect(filtered.some(option => option.label === 'Elderberry')).toBeTruthy();
+    }));
+
+    it('should be case insensitive', fakeAsync(() => {
+      component.searchControl.setValue('APPLE');
+      tick(300);
+      fixture.detectChanges();
+
+      expect(component.filteredOptions()).toEqual([
+        { value: 'apple', label: 'Apple' }
+      ]);
+    }));
+
+    it('should respect maxResults configuration', fakeAsync(() => {
+      component.inputConfig = { maxResults: 2 };
+      component.searchControl.setValue('e');
+      tick(300);
+      fixture.detectChanges();
+
+      expect(component.filteredOptions().length).toBe(2);
+    }));
+
+    it('should not show results when input is below minLength', fakeAsync(() => {
+      component.inputConfig = { minLength: 2 };
+      component.searchControl.setValue('a');
+      tick(300);
+      fixture.detectChanges();
+
+      expect(component.filteredOptions()).toEqual([]);
+      expect(component.isOpen()).toBeFalse();
+    }));
+  });
+
+  describe('Async Search', () => {
+    let mockSearchFn: jasmine.Spy;
+
+    beforeEach(() => {
+      mockSearchFn = jasmine.createSpy('searchFn').and.returnValue(
+        of(mockCountries).pipe(delay(100))
+      );
+      component.searchFn = mockSearchFn;
+      fixture.detectChanges();
+    });
+
+    it('should call search function with search term', fakeAsync(() => {
+      component.searchControl.setValue('uni');
+      tick(300); // Debounce time
+      tick(100); // Async delay
+      fixture.detectChanges();
+
+      expect(mockSearchFn).toHaveBeenCalledWith('uni');
+    }));
+
+    it('should show loading state during search', fakeAsync(() => {
+      component.searchControl.setValue('uni');
+      tick(300); // Debounce time
+      
+      expect(component.loading()).toBeTruthy();
+      
+      tick(100); // Complete async operation
+      expect(component.loading()).toBeFalsy();
+    }));
+
+    it('should handle search errors gracefully', fakeAsync(() => {
+      mockSearchFn.and.returnValue(throwError(() => new Error('Search failed')));
+      
+      component.searchControl.setValue('error');
+      tick(300);
+      fixture.detectChanges();
+
+      expect(component.loading()).toBeFalsy();
+      expect(component.filteredOptions()).toEqual([]);
+    }));
+
+    it('should cancel previous requests when enabled', fakeAsync(() => {
+      component.inputConfig = { cancelPreviousRequests: true };
+      
+      // Start first search
+      component.searchControl.setValue('first');
+      tick(300);
+      
+      // Start second search before first completes
+      component.searchControl.setValue('second');
+      tick(300);
+      tick(100);
+      
+      expect(mockSearchFn).toHaveBeenCalledWith('second');
+      expect(mockSearchFn).toHaveBeenCalledTimes(2);
+    }));
+  });
+
+  describe('Option Selection', () => {
+    beforeEach(() => {
+      component.options = mockOptions;
+      fixture.detectChanges();
+    });
+
+    it('should select option on click', fakeAsync(() => {
+      component.searchControl.setValue('ap');
+      tick(300);
+      fixture.detectChanges();
+
+      const option = component.filteredOptions()[0];
+      component.selectOption(option);
+
+      expect(component.selectedValue()).toBe('apple');
+      expect(component.searchControl.value).toBe('Apple');
+      expect(component.isOpen()).toBeFalse();
+    }));
+
+    it('should emit optionSelected event', fakeAsync(() => {
+      spyOn(component.optionSelected, 'emit');
+      
+      component.searchControl.setValue('ap');
+      tick(300);
+      fixture.detectChanges();
+
+      const option = component.filteredOptions()[0];
+      component.selectOption(option);
+
+      expect(component.optionSelected.emit).toHaveBeenCalledWith(option);
+    }));
+
+    it('should not select disabled options', () => {
+      const disabledOption: TypeaheadOption = { value: 'disabled', label: 'Disabled', disabled: true };
+      component.selectOption(disabledOption);
+
+      expect(component.selectedValue()).toBeNull();
+    });
+
+    it('should highlight first option by default', fakeAsync(() => {
+      component.searchControl.setValue('e');
+      tick(300);
+      fixture.detectChanges();
+
+      expect(component.highlightedIndex()).toBe(0);
+    }));
+  });
+
+  describe('Keyboard Navigation', () => {
+    beforeEach(fakeAsync(() => {
+      component.options = mockOptions;
+      component.searchControl.setValue('e');
+      tick(300);
+      fixture.detectChanges();
+    }));
+
+    it('should navigate down with ArrowDown key', () => {
+      const event = new KeyboardEvent('keydown', { key: 'ArrowDown' });
+      component.onKeyDown(event);
+
+      expect(component.highlightedIndex()).toBe(1);
+    });
+
+    it('should navigate up with ArrowUp key', () => {
+      component.setHighlightedIndex(2);
+      
+      const event = new KeyboardEvent('keydown', { key: 'ArrowUp' });
+      component.onKeyDown(event);
+
+      expect(component.highlightedIndex()).toBe(1);
+    });
+
+    it('should wrap navigation at boundaries', () => {
+      const options = component.filteredOptions();
+      component.setHighlightedIndex(options.length - 1);
+      
+      const downEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' });
+      component.onKeyDown(downEvent);
+
+      expect(component.highlightedIndex()).toBe(0); // Wrapped to first
+    });
+
+    it('should select option with Enter key', () => {
+      spyOn(component, 'selectOption');
+      component.setHighlightedIndex(1);
+      
+      const event = new KeyboardEvent('keydown', { key: 'Enter' });
+      component.onKeyDown(event);
+
+      expect(component.selectOption).toHaveBeenCalledWith(component.filteredOptions()[1]);
+    });
+
+    it('should close dropdown with Escape key', () => {
+      component.open();
+      
+      const event = new KeyboardEvent('keydown', { key: 'Escape' });
+      component.onKeyDown(event);
+
+      expect(component.isOpen()).toBeFalse();
+    });
+
+    it('should navigate to first option with Home key', () => {
+      component.setHighlightedIndex(2);
+      
+      const event = new KeyboardEvent('keydown', { key: 'Home' });
+      component.onKeyDown(event);
+
+      expect(component.highlightedIndex()).toBe(0);
+    });
+
+    it('should navigate to last option with End key', () => {
+      const event = new KeyboardEvent('keydown', { key: 'End' });
+      component.onKeyDown(event);
+
+      const lastIndex = component.filteredOptions().length - 1;
+      expect(component.highlightedIndex()).toBe(lastIndex);
+    });
+  });
+
+  describe('Multi-Select Mode', () => {
+    beforeEach(() => {
+      component.options = mockOptions;
+      component.inputConfig = { multiSelect: true };
+      fixture.detectChanges();
+    });
+
+    it('should allow multiple selections', fakeAsync(() => {
+      component.searchControl.setValue('ap');
+      tick(300);
+      component.selectOption(component.filteredOptions()[0]);
+      
+      component.searchControl.setValue('ba');
+      tick(300);
+      component.selectOption(component.filteredOptions()[0]);
+
+      expect(component.selectedItems().length).toBe(2);
+      expect(component.selectedItems()[0].value).toBe('apple');
+      expect(component.selectedItems()[1].value).toBe('banana');
+    }));
+
+    it('should clear search input after selection in multi-select', fakeAsync(() => {
+      component.searchControl.setValue('ap');
+      tick(300);
+      component.selectOption(component.filteredOptions()[0]);
+
+      expect(component.searchControl.value).toBe('');
+    }));
+
+    it('should remove chip when clicked', () => {
+      const apple = { value: 'apple', label: 'Apple' };
+      const banana = { value: 'banana', label: 'Banana' };
+      component.selectedItems.set([apple, banana]);
+
+      component.removeChip(apple, new Event('click'));
+
+      expect(component.selectedItems()).toEqual([banana]);
+    });
+
+    it('should respect max selections limit', () => {
+      component.inputConfig = { multiSelect: true, maxSelections: 2 };
+      component.selectedItems.set([
+        { value: 'apple', label: 'Apple' },
+        { value: 'banana', label: 'Banana' }
+      ]);
+
+      const cherry = { value: 'cherry', label: 'Cherry' };
+      component.selectOption(cherry);
+
+      expect(component.selectedItems().length).toBe(2);
+    });
+
+    it('should emit selectionChanged event', () => {
+      spyOn(component.selectionChanged, 'emit');
+      
+      const apple = { value: 'apple', label: 'Apple' };
+      component.selectOption(apple);
+
+      expect(component.selectionChanged.emit).toHaveBeenCalledWith([apple]);
+    });
+  });
+
+  describe('Form Integration (ControlValueAccessor)', () => {
+    beforeEach(() => {
+      component.options = mockOptions;
+      fixture.detectChanges();
+    });
+
+    it('should write value to component', () => {
+      component.writeValue('apple');
+
+      expect(component.selectedValue()).toBe('apple');
+      expect(component.searchControl.value).toBe('Apple');
+    });
+
+    it('should register onChange callback', () => {
+      const mockOnChange = jasmine.createSpy('onChange');
+      component.registerOnChange(mockOnChange);
+
+      component.selectOption(mockOptions[0]);
+
+      expect(mockOnChange).toHaveBeenCalledWith('apple');
+    });
+
+    it('should register onTouched callback', () => {
+      const mockOnTouched = jasmine.createSpy('onTouched');
+      component.registerOnTouched(mockOnTouched);
+
+      inputElement.dispatchEvent(new Event('blur'));
+
+      // Allow for setTimeout in blur handler
+      setTimeout(() => {
+        expect(mockOnTouched).toHaveBeenCalled();
+      }, 150);
+    });
+
+    it('should handle disabled state', () => {
+      component.setDisabledState(true);
+
+      expect(component.inputDisabled).toBeTruthy();
+      expect(component.searchControl.disabled).toBeTruthy();
+    });
+  });
+
+  describe('Accessibility', () => {
+    beforeEach(() => {
+      component.options = mockOptions;
+      fixture.detectChanges();
+    });
+
+    it('should have proper ARIA attributes', () => {
+      expect(inputElement.getAttribute('role')).toBe('combobox');
+      expect(inputElement.getAttribute('aria-autocomplete')).toBe('list');
+      expect(inputElement.getAttribute('aria-haspopup')).toBe('listbox');
+    });
+
+    it('should update aria-expanded when dropdown opens/closes', fakeAsync(() => {
+      component.searchControl.setValue('ap');
+      tick(300);
+      fixture.detectChanges();
+
+      expect(inputElement.getAttribute('aria-expanded')).toBe('true');
+
+      component.close();
+      fixture.detectChanges();
+
+      expect(inputElement.getAttribute('aria-expanded')).toBe('false');
+    }));
+
+    it('should have aria-activedescendant when option is highlighted', fakeAsync(() => {
+      component.searchControl.setValue('ap');
+      tick(300);
+      fixture.detectChanges();
+
+      const activeOptionId = component.activeOptionId();
+      expect(activeOptionId).toBeTruthy();
+      expect(inputElement.getAttribute('aria-activedescendant')).toBe(activeOptionId);
+    }));
+
+    it('should announce results to screen readers', fakeAsync(() => {
+      component.inputConfig = { announceResults: true };
+      
+      component.searchControl.setValue('ap');
+      tick(300);
+      fixture.detectChanges();
+
+      // Check that announcement is made (this would need proper testing with screen reader)
+      expect(component.currentAnnouncement()).toContain('available');
+    }));
+  });
+
+  describe('Performance Features', () => {
+    it('should enable virtual scrolling for large datasets', () => {
+      component.inputConfig = { virtualScrolling: true };
+      const largeDataset = Array.from({ length: 100 }, (_, i) => ({
+        value: `item-${i}`,
+        label: `Item ${i}`
+      }));
+      
+      component.filteredOptions.set(largeDataset);
+      fixture.detectChanges();
+
+      expect(component.config().virtualScrolling).toBeTruthy();
+    });
+
+    it('should cache search results when enabled', fakeAsync(() => {
+      component.inputConfig = { enableCaching: true };
+      component.options = mockOptions;
+      
+      // First search
+      component.searchControl.setValue('ap');
+      tick(300);
+      
+      // Second search with same term should use cache
+      component.searchControl.setValue('');
+      tick(300);
+      component.searchControl.setValue('ap');
+      tick(300);
+      
+      // Cache should be used (this is internal behavior, hard to test directly)
+      expect(component.config().enableCaching).toBeTruthy();
+    }));
+  });
+
+  describe('Configuration Options', () => {
+    it('should apply custom debounce time', fakeAsync(() => {
+      component.inputConfig = { debounceTime: 500 };
+      component.options = mockOptions;
+      
+      component.searchControl.setValue('test');
+      tick(300); // Original debounce time
+      
+      // Should not have opened yet due to longer debounce
+      expect(component.isOpen()).toBeFalsy();
+      
+      tick(200); // Complete custom debounce time
+      expect(component.isOpen()).toBeTruthy();
+    }));
+
+    it('should apply custom placeholder', () => {
+      component.inputConfig = { placeholder: 'Custom placeholder' };
+      fixture.detectChanges();
+
+      expect(inputElement.getAttribute('placeholder')).toBe('Custom placeholder');
+    });
+
+    it('should show custom no results text', fakeAsync(() => {
+      component.inputConfig = { noResultsText: 'Custom no results' };
+      component.options = [];
+      
+      component.searchControl.setValue('nothing');
+      tick(300);
+      fixture.detectChanges();
+
+      expect(component.config().noResultsText).toBe('Custom no results');
+    }));
+  });
+
+  describe('Search Highlighting', () => {
+    it('should highlight search terms in results', () => {
+      const highlighted = component.getHighlightedText('Apple juice', 'app');
+      
+      // The result should be SafeHtml with highlighting
+      expect(highlighted).toBeTruthy();
+      // Note: Testing SafeHtml content requires more complex setup
+    });
+
+    it('should handle empty search terms', () => {
+      const highlighted = component.getHighlightedText('Apple juice', '');
+      expect(highlighted).toBeTruthy();
+    });
+
+    it('should escape regex special characters', () => {
+      const highlighted = component.getHighlightedText('$100 (USD)', '$');
+      expect(highlighted).toBeTruthy();
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should handle null/undefined values gracefully', () => {
+      expect(() => component.writeValue(null)).not.toThrow();
+      expect(() => component.writeValue(undefined)).not.toThrow();
+    });
+
+    it('should handle invalid option values', () => {
+      expect(() => component.selectOption(null as any)).not.toThrow();
+      expect(() => component.selectOption(undefined as any)).not.toThrow();
+    });
+  });
+
+  describe('Public API Methods', () => {
+    beforeEach(() => {
+      component.options = mockOptions;
+      fixture.detectChanges();
+    });
+
+    it('should clear selection and input', () => {
+      component.writeValue('apple');
+      component.clear();
+
+      expect(component.selectedValue()).toBeNull();
+      expect(component.searchControl.value).toBe('');
+      expect(component.isOpen()).toBeFalse();
+    });
+
+    it('should focus input element', () => {
+      spyOn(inputElement, 'focus');
+      component.focus();
+
+      expect(inputElement.focus).toHaveBeenCalled();
+    });
+
+    it('should open dropdown programmatically', () => {
+      component.open();
+
+      expect(component.isOpen()).toBeTruthy();
+    });
+
+    it('should close dropdown programmatically', () => {
+      component.open();
+      component.close();
+
+      expect(component.isOpen()).toBeFalsy();
+      expect(component.highlightedIndex()).toBe(-1);
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle empty options array', () => {
+      component.options = [];
+      component.searchControl.setValue('test');
+      
+      expect(component.filteredOptions()).toEqual([]);
+    });
+
+    it('should handle rapid input changes', fakeAsync(() => {
+      component.options = mockOptions;
+      
+      // Rapid typing simulation
+      component.searchControl.setValue('a');
+      tick(100);
+      component.searchControl.setValue('ap');
+      tick(100);
+      component.searchControl.setValue('app');
+      tick(300); // Complete debounce
+      
+      expect(component.filteredOptions().length).toBeGreaterThan(0);
+    }));
+
+    it('should handle focus/blur events correctly', fakeAsync(() => {
+      component.options = mockOptions;
+      component.inputConfig = { searchOnFocus: true };
+      
+      // Test focus behavior
+      component.onFocus();
+      fixture.detectChanges();
+      
+      // Should potentially open dropdown based on configuration
+      if (component.config().searchOnFocus) {
+        expect(component.isOpen()).toBeTruthy();
+      }
+      
+      // Test blur behavior
+      const blurEvent = new FocusEvent('blur', { relatedTarget: null });
+      component.onBlur(blurEvent);
+      tick(100); // Blur delay
+      
+      expect(component.isOpen()).toBeFalsy();
+    }));
+  });
+});
