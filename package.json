@@ -1,6 +1,6 @@
 {
   "name": "rm-ng-typeahead-main",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "High-performance Angular 20+ typeahead/autocomplete component with multi-select, chips, and comprehensive customization",
   "keywords": [
     "angular",
