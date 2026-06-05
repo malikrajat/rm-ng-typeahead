@@ -130,6 +130,12 @@ importers:
         specifier: ^4.9.0
         version: 4.10.2
 
+  .angular/cache/angular-cli-tmp-packages-9wRNOG:
+    dependencies:
+      '@angular/cli':
+        specifier: 22.0.0
+        version: 22.0.0(@types/node@24.6.2)(chokidar@5.0.0)
+
   .angular/cache/angular-cli-tmp-packages-rixZid:
     dependencies:
       '@angular/cli':
@@ -6944,8 +6950,8 @@ snapshots:
   '@modelcontextprotocol/sdk@1.29.0(zod@4.4.2)':
     dependencies:
       '@hono/node-server': 1.19.14(hono@4.12.23)
-      ajv: 8.18.0
-      ajv-formats: 3.0.1(ajv@8.18.0)
+      ajv: 8.20.0
+      ajv-formats: 3.0.1(ajv@8.20.0)
       content-type: 1.0.5
       cors: 2.8.5
       cross-spawn: 7.0.6
