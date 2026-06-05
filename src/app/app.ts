@@ -1,14 +1,19 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, FormGroup, FormsModule } from '@angular/forms';
-import { TypeaheadComponent, TypeaheadOption, TypeaheadConfig } from '../../projects/rm-ng-typeahead/src/public-api';
+import {
+  TypeaheadComponent,
+  TypeaheadOption,
+  TypeaheadConfig,
+} from '../../projects/rm-ng-typeahead/src/public-api';
 import { Observable, of, delay } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   imports: [CommonModule, TypeaheadComponent, ReactiveFormsModule, FormsModule],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './app.scss',
 })
 export class App {
   protected readonly title = signal('rm-ng-typeahead-main');
@@ -22,7 +27,7 @@ export class App {
     { value: 'elderberry', label: 'Elderberry' },
     { value: 'fig', label: 'Fig' },
     { value: 'grape', label: 'Grape' },
-    { value: 'honeydew', label: 'Honeydew' }
+    { value: 'honeydew', label: 'Honeydew' },
   ];
 
   // Country options for async example
@@ -40,7 +45,7 @@ export class App {
     { value: 'jp', label: 'Japan' },
     { value: 'cn', label: 'China' },
     { value: 'in', label: 'India' },
-    { value: 'au', label: 'Australia' }
+    { value: 'au', label: 'Australia' },
   ];
 
   // Large dataset for performance testing (100k+ items)
@@ -57,7 +62,7 @@ export class App {
     { value: 'sports', label: 'Sports' },
     { value: 'music', label: 'Music' },
     { value: 'travel', label: 'Travel' },
-    { value: 'food', label: 'Food & Cooking' }
+    { value: 'food', label: 'Food & Cooking' },
   ];
 
   tags: TypeaheadOption[] = [
@@ -70,7 +75,7 @@ export class App {
     { value: 'testing', label: 'Testing' },
     { value: 'ci-cd', label: 'CI/CD' },
     { value: 'frontend', label: 'Frontend' },
-    { value: 'backend', label: 'Backend' }
+    { value: 'backend', label: 'Backend' },
   ];
 
   // Configuration examples
@@ -84,8 +89,8 @@ export class App {
       searchHighlightBackground: '#3b6cffff', // Bright yellow for visibility
       searchHighlightText: '#000000ff', // Black text for contrast
       highlightBackground: '#2196f3', // Blue for option highlighting
-      highlightText: '#ffffff' // White text for option highlighting
-    }
+      highlightText: '#ffffff', // White text for option highlighting
+    },
   };
 
   // Multi-select configuration ✨ NEW
@@ -97,7 +102,7 @@ export class App {
     compactMode: false,
     allowDuplicates: false,
     selectionLimit: 3,
-    placeholder: 'Select categories...'
+    placeholder: 'Select categories...',
   };
 
   // Advanced multi-select with custom styling
@@ -111,7 +116,7 @@ export class App {
     cancelPreviousRequests: true,
     searchTimeout: 5000,
     retryAttempts: 2,
-    placeholder: 'Search and select tags...'
+    placeholder: 'Search and select tags...',
   };
 
   // Complete color customization configuration ✨ NEW
@@ -128,7 +133,7 @@ export class App {
       border: '#4caf50',
       hoverBackground: '#4caf50',
       hoverText: '#ffffff',
-      removeHover: 'rgba(255,255,255,0.3)'
+      removeHover: 'rgba(255,255,255,0.3)',
     },
     dropdownColors: {
       highlightBackground: '#ff9800',
@@ -138,12 +143,12 @@ export class App {
       hoverBackground: '#fce4ec',
       hoverText: '#880e4f',
       searchHighlightBackground: '#e91e63', // Pink highlight for search terms
-      searchHighlightText: '#ffffff'
+      searchHighlightText: '#ffffff',
     },
     inputColors: {
       focusBorder: '#9c27b0',
-      focusShadow: 'rgba(156, 39, 176, 0.25)'
-    }
+      focusShadow: 'rgba(156, 39, 176, 0.25)',
+    },
   };
 
   // Professional dark theme configuration ✨ NEW
@@ -159,7 +164,7 @@ export class App {
       border: '#616161',
       hoverBackground: '#616161',
       hoverText: '#ffffff',
-      removeHover: 'rgba(255,255,255,0.2)'
+      removeHover: 'rgba(255,255,255,0.2)',
     },
     dropdownColors: {
       highlightBackground: '#1976d2',
@@ -169,12 +174,12 @@ export class App {
       hoverBackground: '#37474f',
       hoverText: '#ffffff',
       searchHighlightBackground: '#ffcc02', // Gold highlight for dark theme
-      searchHighlightText: '#000000'
+      searchHighlightText: '#000000',
     },
     inputColors: {
       focusBorder: '#2196f3',
-      focusShadow: 'rgba(33, 150, 243, 0.3)'
-    }
+      focusShadow: 'rgba(33, 150, 243, 0.3)',
+    },
   };
 
   advancedConfig: TypeaheadConfig = {
@@ -186,7 +191,7 @@ export class App {
     clearable: true,
     selectOnTab: true,
     selectOnEnter: true,
-    closeOnSelect: true
+    closeOnSelect: true,
   };
 
   // Configuration specifically for highlighting demo
@@ -205,7 +210,7 @@ export class App {
       // searchHighlightText: '#ffffff', // White text for contrast
       // highlightBackground: '#2196f3',
       // highlightText: '#ffffff'
-    }
+    },
   };
 
   // Enhanced search configuration with new features
@@ -226,7 +231,7 @@ export class App {
     clearable: true,
     selectOnTab: true,
     selectOnEnter: true,
-    closeOnSelect: true
+    closeOnSelect: true,
   };
 
   // Throttle configuration example
@@ -238,7 +243,7 @@ export class App {
     cancelPreviousRequests: true,
     searchOnFocus: false,
     highlightFirst: true,
-    clearable: true
+    clearable: true,
   };
 
   // High-performance configuration for large datasets
@@ -265,7 +270,7 @@ export class App {
     cacheSize: 500,
     maxCacheAge: 600000, // 10 minutes
     enableGc: true,
-    gcInterval: 120000 // 2 minutes
+    gcInterval: 120000, // 2 minutes
   };
 
   // Form controls
@@ -281,7 +286,7 @@ export class App {
   // Form group example
   demoForm = new FormGroup({
     selectedFruit: new FormControl(''),
-    selectedCountry: new FormControl('')
+    selectedCountry: new FormControl(''),
   });
 
   // Multi-select form group ✨ NEW
@@ -289,7 +294,7 @@ export class App {
     categories: new FormControl<TypeaheadOption[]>([]),
     tags: new FormControl<TypeaheadOption[]>([]),
     customColorItems: new FormControl<TypeaheadOption[]>([]),
-    darkThemeItems: new FormControl<TypeaheadOption[]>([])
+    darkThemeItems: new FormControl<TypeaheadOption[]>([]),
   });
 
   // Signals for demo state
@@ -310,26 +315,30 @@ export class App {
 
   // Computed properties for display
   selectedCategoryLabels = computed(() =>
-    this.selectedCategories().map((c: any) => c.label).join(', ')
+    this.selectedCategories()
+      .map((c: any) => c.label)
+      .join(', '),
   );
 
-  selectedTagLabels = computed(() =>
-    this.selectedTags().map((t: any) => t.label)
-  );
+  selectedTagLabels = computed(() => this.selectedTags().map((t: any) => t.label));
 
   // Color demo computed properties ✨ NEW
   selectedCustomColorLabels = computed(() =>
-    this.selectedCustomColorItems().map(item => item.label).join(', ')
+    this.selectedCustomColorItems()
+      .map((item) => item.label)
+      .join(', '),
   );
 
   selectedDarkThemeLabels = computed(() =>
-    this.selectedDarkThemeItems().map(item => item.label).join(', ')
+    this.selectedDarkThemeItems()
+      .map((item) => item.label)
+      .join(', '),
   );
 
   // Async search function
   searchCountries = (term: string): Observable<TypeaheadOption[]> => {
-    const filtered = this.countries.filter(country =>
-      country.label.toLowerCase().includes(term.toLowerCase())
+    const filtered = this.countries.filter((country) =>
+      country.label.toLowerCase().includes(term.toLowerCase()),
     );
 
     // Simulate network delay
@@ -338,8 +347,8 @@ export class App {
 
   // High-performance search function for large dataset
   searchLargeDataset = (term: string): Observable<TypeaheadOption[]> => {
-    const filtered = this.largeDataset.filter(item =>
-      item.label.toLowerCase().includes(term.toLowerCase())
+    const filtered = this.largeDataset.filter((item) =>
+      item.label.toLowerCase().includes(term.toLowerCase()),
     );
 
     // Simulate API call with optimized response
@@ -348,9 +357,42 @@ export class App {
 
   // Generate large dataset for performance testing
   private generateLargeDataset(size: number): TypeaheadOption[] {
-    const prefixes = ['Super', 'Ultra', 'Mega', 'Premium', 'Elite', 'Pro', 'Advanced', 'Digital', 'Smart', 'Turbo'];
-    const categories = ['Widget', 'Gadget', 'Tool', 'Device', 'System', 'Platform', 'Engine', 'Framework', 'Module', 'Component'];
-    const suffixes = ['2024', 'X', 'Plus', 'Max', 'Pro', 'Ultra', 'Advanced', 'Premium', 'Enterprise', 'Cloud'];
+    const prefixes = [
+      'Super',
+      'Ultra',
+      'Mega',
+      'Premium',
+      'Elite',
+      'Pro',
+      'Advanced',
+      'Digital',
+      'Smart',
+      'Turbo',
+    ];
+    const categories = [
+      'Widget',
+      'Gadget',
+      'Tool',
+      'Device',
+      'System',
+      'Platform',
+      'Engine',
+      'Framework',
+      'Module',
+      'Component',
+    ];
+    const suffixes = [
+      '2024',
+      'X',
+      'Plus',
+      'Max',
+      'Pro',
+      'Ultra',
+      'Advanced',
+      'Premium',
+      'Enterprise',
+      'Cloud',
+    ];
 
     const dataset: TypeaheadOption[] = [];
 
@@ -363,7 +405,7 @@ export class App {
       dataset.push({
         value: `item-${i}`,
         label: `${prefix} ${category} ${suffix} #${number}`,
-        data: { index: i, category, performance: true }
+        data: { index: i, category, performance: true },
       });
     }
 
@@ -462,7 +504,7 @@ export class App {
   populateForm(): void {
     this.demoForm.patchValue({
       selectedFruit: 'apple',
-      selectedCountry: 'us'
+      selectedCountry: 'us',
     });
 
     // Populate multi-select form ✨ NEW
@@ -470,14 +512,14 @@ export class App {
       categories: [this.categories[0], this.categories[1]],
       tags: [this.tags[0], this.tags[2]],
       customColorItems: [this.categories[2]],
-      darkThemeItems: [this.tags[1], this.tags[3]]
+      darkThemeItems: [this.tags[1], this.tags[3]],
     });
   }
 
   // Enhanced search methods
   searchCountriesWithDelay = (term: string): Observable<TypeaheadOption[]> => {
-    const filtered = this.countries.filter(country =>
-      country.label.toLowerCase().includes(term.toLowerCase())
+    const filtered = this.countries.filter((country) =>
+      country.label.toLowerCase().includes(term.toLowerCase()),
     );
 
     // Add artificial delay to demonstrate cancellation
